@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yumemi_code_check_assignment/provider/search_notifier.dart';
+import 'package:yumemi_code_check_assignment/view/repository_detail_page.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -133,7 +134,18 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                       Icons.arrow_forward_ios,
                                       color: Colors.white,
                                     ),
-                                    onTap: () {},
+                                    onTap: () {
+                                      ref
+                                          .read(searchAsyncNotifierProvider
+                                              .notifier)
+                                          .updateSelectedRepository(repository);
+
+                                      // 詳細画面へ遷移
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  RepositoryDetailPage()));
+                                    },
                                   ),
                                 ),
                               );

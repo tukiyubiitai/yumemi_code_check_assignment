@@ -40,4 +40,35 @@ class SearchAsyncNotifier extends _$SearchAsyncNotifier {
       bookmarkList: {...state.value!.bookmarkList, repositoryDetail.name},
     ));
   }
+
+  // 選択されたRepositoryをselectedRepositoryの中に入れる
+  void updateSelectedRepository(RepositoryDetail repository) {
+    state = AsyncValue.data(state.value!.copyWith(
+      selectedRepository: repository,
+    ));
+  }
+}
+
+/// 選択されたRepositoryの情報をsearchAsyncNotifierProviderから取得し、RepositoryDetailに値を入れる
+@riverpod
+RepositoryDetail? selectedRepository(SelectedRepositoryRef ref) {
+  try {
+    final state =
+        ref.watch(searchAsyncNotifierProvider).value!.selectedRepository;
+    if (state == null) {
+      return null;
+    }
+    return RepositoryDetail(
+        id: state.id,
+        name: state.name,
+        language: state.language,
+        stargazers_count: state.stargazers_count,
+        watchers_count: state.watchers_count,
+        forks_count: state.forks_count,
+        open_issues_count: state.open_issues_count,
+        owner: state.owner);
+  } catch (e) {
+    print(e);
+    throw e;
+  }
 }
