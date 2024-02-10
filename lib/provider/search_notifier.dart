@@ -30,11 +30,6 @@ class SearchAsyncNotifier extends _$SearchAsyncNotifier {
     state = AsyncValue.data(RepositoryState(repositoryList: response));
   }
 
-  Future<void> reloadRepositories() async {
-    state = AsyncValue.loading();
-    state = await AsyncValue.guard(() => _loadApi());
-  }
-
   void addToBookmarklist(RepositoryDetail repositoryDetail) {
     state = AsyncValue.data(state.value!.copyWith(
       bookmarkList: {...state.value!.bookmarkList, repositoryDetail.name},

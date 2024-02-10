@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yumemi_code_check_assignment/provider/search_notifier.dart';
 import 'package:yumemi_code_check_assignment/view/repository_detail_page.dart';
 
+/// 検索ページ
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
 
