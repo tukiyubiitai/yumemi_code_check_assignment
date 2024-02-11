@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yumemi_code_check_assignment/provider/search_notifier.dart';
-import 'package:yumemi_code_check_assignment/view/repository_detail_page.dart';
+
+import '../view_models/search_view_model.dart';
 
 /// 検索ページ
 class SearchPage extends ConsumerStatefulWidget {
@@ -15,6 +16,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   final ScrollController _scrollController = ScrollController();
 
   final TextEditingController _controller = TextEditingController();
+
+  late final SearchViewModel viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    viewModel = SearchViewModel(ref, context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,28 +52,27 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                               BorderSide(color: Colors.deepPurple.shade300),
                         ),
                         labelStyle: const TextStyle(color: Colors.deepPurple)),
-                    onFieldSubmitted: (value) {
-                      performSearch(); // 検索
-                    },
+                    onFieldSubmitted: (value) =>
+                        viewModel.performSearch(value), // 検索,
                   ),
                 ),
                 Container(
                   height: 50.0,
                   margin: EdgeInsets.all(10),
                   child: ElevatedButton(
-                    onPressed: () {
-                      performSearch(); // 検索
-                    },
+                    onPressed: _controller.text.isNotEmpty
+                        ? () => viewModel.performSearch(_controller.text)
+                        : null, // テキストが空の場合はボタンを無効化
+                    // 検索
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all(EdgeInsets.all(0.0)),
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0),
                         ),
                       ),
-                      backgroundColor: MaterialStateProperty.all(
-                          Colors.transparent), // 背景色を透明に
-                      // 影を無効にする
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.transparent),
                       elevation: MaterialStateProperty.all(0),
                     ),
                     child: Ink(
@@ -139,21 +147,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                         Icons.arrow_forward_ios,
                                         color: Colors.white,
                                       ),
-                                      onTap: () {
-                                        FocusScope.of(context)
-                                            .unfocus(); // キーボード閉じる
-                                        ref
-                                            .read(searchAsyncNotifierProvider
-                                                .notifier)
-                                            .updateSelectedRepository(
-                                                repository);
-
-                                        // 詳細画面へ遷移
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    RepositoryDetailPage()));
-                                      },
+                                      // レポジトリ詳細
+                                      onTap: () =>
+                                          viewModel.onRepositoryTap(repository),
                                     ),
                                   ),
                                 );
@@ -167,13 +163,5 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         ),
       ),
     );
-  }
-
-  void performSearch() {
-    FocusScope.of(context).unfocus(); // キーボードを閉じる
-    // 検索処理を実行
-    ref
-        .read(searchAsyncNotifierProvider.notifier)
-        .searchRepositories(_controller.text);
   }
 }

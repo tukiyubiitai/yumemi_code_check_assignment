@@ -40,8 +40,12 @@ class SearchRepository {
 
   //検索データ取得処理
   Future<List<RepositoryDetail>> searchBooks(String keyWords) async {
-    // 追加の書籍を読み込むメソッド
-    defaultWord = keyWords;
-    return getRepositories(query: defaultWord); // 更新されたページ番号でAPIを呼び出す
+    if (keyWords.isNotEmpty) {
+      // 追加の書籍を読み込むメソッド
+      defaultWord = keyWords;
+      return getRepositories(query: defaultWord); // 更新されたページ番号でAPIを呼び出す
+    }
+    // keywordがnullの時
+    return getRepositories();
   }
 }
