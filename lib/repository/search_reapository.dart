@@ -9,7 +9,11 @@ final searchRepositoryProvider = Provider.family<SearchRepository, String>(
 class SearchRepository {
   SearchRepository(this.token);
 
+  //アクセストークン
   final String token;
+
+  //デフォルトはflutter　で検索される
+  String defaultWord = "flutter";
 
   Dio get _client => Dio(
         BaseOptions(
@@ -32,5 +36,12 @@ class SearchRepository {
       print(e);
       throw e;
     }
+  }
+
+  //検索データ取得処理
+  Future<List<RepositoryDetail>> searchBooks(String keyWords) async {
+    // 追加の書籍を読み込むメソッド
+    defaultWord = keyWords;
+    return getRepositories(query: defaultWord); // 更新されたページ番号でAPIを呼び出す
   }
 }

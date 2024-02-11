@@ -7,7 +7,6 @@ part 'repository_state.freezed.dart';
 class RepositoryState with _$RepositoryState {
   const factory RepositoryState({
     @Default([]) List<RepositoryDetail> repositoryList,
-    @Default({}) Set<String> bookmarkList,
     RepositoryDetail? selectedRepository, // 選択されたRepository
   }) = _RepositoryState;
 }

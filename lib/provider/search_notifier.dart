@@ -17,23 +17,12 @@ class SearchAsyncNotifier extends _$SearchAsyncNotifier {
     return RepositoryState(repositoryList: []);
   }
 
-  Future<RepositoryState> _loadApi() async {
-    final response = await _api.getRepositories();
-    return RepositoryState(repositoryList: response);
-  }
-
   // ユーザーが検索を開始するためのメソッド
   Future<void> searchRepositories(String query) async {
     state = AsyncValue.loading();
 
-    final response = await _api.getRepositories();
+    final response = await _api.searchBooks(query);
     state = AsyncValue.data(RepositoryState(repositoryList: response));
-  }
-
-  void addToBookmarklist(RepositoryDetail repositoryDetail) {
-    state = AsyncValue.data(state.value!.copyWith(
-      bookmarkList: {...state.value!.bookmarkList, repositoryDetail.name},
-    ));
   }
 
   // 選択されたRepositoryをselectedRepositoryの中に入れる
