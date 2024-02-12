@@ -1,8 +1,11 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yumemi_code_check_assignment/provider/search_notifier.dart';
+import 'package:yumemi_code_check_assignment/provider/search_state_provider.dart';
+import 'package:yumemi_code_check_assignment/view/repository_detail_page.dart';
 
-import '../view_models/search_view_model.dart';
+import '../provider/theme_provider.dart';
 
 /// 検索ページ
 class SearchPage extends ConsumerStatefulWidget {
@@ -13,24 +16,38 @@ class SearchPage extends ConsumerStatefulWidget {
 }
 
 class _SearchPageState extends ConsumerState<SearchPage> {
-  final ScrollController _scrollController = ScrollController();
-
   final TextEditingController _controller = TextEditingController();
-
-  late final SearchViewModel viewModel;
 
   @override
   void initState() {
     super.initState();
-    viewModel = SearchViewModel(ref, context);
+    _controller.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(searchAsyncNotifierProvider);
+    final isLightTheme = ref.watch(themeProvider); // テーマ
+    final isSearched = ref.watch(searchNotifierProvider); // 検索の状態
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          Switch(
+            value: isLightTheme,
+            onChanged: (value) =>
+                ref.read(themeProvider.notifier).state = value,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -52,8 +69,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                               BorderSide(color: Colors.deepPurple.shade300),
                         ),
                         labelStyle: const TextStyle(color: Colors.deepPurple)),
-                    onFieldSubmitted: (value) =>
-                        viewModel.performSearch(value), // 検索,
                   ),
                 ),
                 Container(
@@ -61,9 +76,20 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   margin: EdgeInsets.all(10),
                   child: ElevatedButton(
                     onPressed: _controller.text.isNotEmpty
-                        ? () => viewModel.performSearch(_controller.text)
-                        : null, // テキストが空の場合はボタンを無効化
-                    // 検索
+                        ? () {
+                            FocusScope.of(context).unfocus(); // キーボードを閉じる
+
+                            //検索処理
+                            ref
+                                .read(searchAsyncNotifierProvider.notifier)
+                                .searchRepositories(_controller.text);
+
+                            //検索を開始
+                            ref
+                                .read(searchNotifierProvider.notifier)
+                                .startSearching();
+                          }
+                        : null, // textに入力されていない場合は検索できない
                     style: ButtonStyle(
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -71,8 +97,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           borderRadius: BorderRadius.circular(80.0),
                         ),
                       ),
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.transparent),
+                      backgroundColor: MaterialStateProperty.all(
+                          Colors.transparent), // 背景色を透明に
                       elevation: MaterialStateProperty.all(0),
                     ),
                     child: Ink(
@@ -101,34 +127,68 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 ),
                 Expanded(
                   child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
                     child: state.when(
                         error: (e, stack) => Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text("見つかりませんでした"),
+                                  Text("問題が発生しました"),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  OutlinedButton(
+                                      onPressed: () {
+                                        //再読み込み処理
+                                        ref
+                                            .read(searchAsyncNotifierProvider
+                                                .notifier)
+                                            .searchRepositories(
+                                                _controller.text);
+                                      },
+                                      child: Text("やり直す"))
                                 ],
                               ),
                             ),
                         loading: () =>
                             Center(child: CircularProgressIndicator()),
-                        data: (data) => ListView.builder(
-                              shrinkWrap: true,
-                              // ListViewが占めるべき高さを自動で計算
-                              physics: NeverScrollableScrollPhysics(),
-                              // ListView内のスクロールを無効化
-                              itemCount: data.repositoryList.length,
-                              itemBuilder: (context, index) {
-                                final repository = data.repositoryList[index];
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: Colors.indigo,
-                                    ),
-                                    child: ListTile(
+                        data: (data) {
+                          // 検索が実行されていない場合は何も表示しない
+                          if (!isSearched) {
+                            return SizedBox.shrink(); // 何も表示しない
+                          }
+                          // 検索が実行されていて、検索結果がない場合はメッセージを表示
+                          if (data.repositoryList.isEmpty) {
+                            return Center(
+                                child: Text(
+                              "リポジトリが見つかりませんでした",
+                              style: TextStyle(
+                                color:
+                                    isLightTheme ? Colors.black : Colors.white,
+                                fontSize: 18,
+                              ),
+                            ));
+                          }
+                          // 検索結果をリストで表示
+                          return ListView.builder(
+                            primary: false,
+                            shrinkWrap: true,
+                            // physics: NeverScrollableScrollPhysics(),
+                            itemCount: data.repositoryList.length,
+                            itemBuilder: (context, index) {
+                              final repository = data.repositoryList[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: OpenContainer(
+                                  closedElevation: 0,
+                                  closedShape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  closedColor: Colors.indigo,
+                                  closedBuilder: (BuildContext context,
+                                      VoidCallback openContainer) {
+                                    return ListTile(
                                       leading: CircleAvatar(
                                         backgroundImage: NetworkImage(
                                             repository.owner.avatarUrl),
@@ -139,22 +199,30 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white),
                                       ),
-                                      subtitle: Text(
-                                        repository.language,
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      trailing: Icon(
-                                        Icons.arrow_forward_ios,
-                                        color: Colors.white,
-                                      ),
-                                      // レポジトリ詳細
-                                      onTap: () =>
-                                          viewModel.onRepositoryTap(repository),
-                                    ),
-                                  ),
-                                );
-                              },
-                            )),
+                                      subtitle: Text(repository.language,
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                      trailing: Icon(Icons.expand,
+                                          color: Colors.white),
+                                    );
+                                  },
+                                  openBuilder:
+                                      (BuildContext context, VoidCallback _) {
+                                    // Futureを使ってビルドフェーズが完了した後に状態変更
+                                    Future(() {
+                                      ref
+                                          .read(searchAsyncNotifierProvider
+                                              .notifier)
+                                          .updateSelectedRepository(repository);
+                                    });
+
+                                    return RepositoryDetailPage();
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        }),
                   ),
                 ),
               ],

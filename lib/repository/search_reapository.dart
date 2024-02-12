@@ -1,16 +1,17 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yumemi_code_check_assignment/models/repository_detail.dart';
 
 final searchRepositoryProvider = Provider.family<SearchRepository, String>(
-  (_, token) => SearchRepository(token),
+  (_, token) => SearchRepository(),
 );
 
 class SearchRepository {
-  SearchRepository(this.token);
+  SearchRepository();
 
-  //アクセストークン
-  final String token;
+  // .envからアクセストークンを取得
+  final token = dotenv.env['TOKEN'];
 
   //デフォルトはflutter　で検索される
   String defaultWord = "flutter";
@@ -39,7 +40,7 @@ class SearchRepository {
   }
 
   //検索データ取得処理
-  Future<List<RepositoryDetail>> searchBooks(String keyWords) async {
+  Future<List<RepositoryDetail>> searchRepositories(String keyWords) async {
     if (keyWords.isNotEmpty) {
       // 追加の書籍を読み込むメソッド
       defaultWord = keyWords;

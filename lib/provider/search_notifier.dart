@@ -21,7 +21,7 @@ class SearchAsyncNotifier extends _$SearchAsyncNotifier {
   Future<void> searchRepositories(String query) async {
     state = AsyncValue.loading();
 
-    final response = await _api.searchBooks(query);
+    final response = await _api.searchRepositories(query);
     state = AsyncValue.data(RepositoryState(repositoryList: response));
   }
 
