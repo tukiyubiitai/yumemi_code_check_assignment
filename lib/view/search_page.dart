@@ -211,7 +211,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                   },
                                   openBuilder:
                                       (BuildContext context, VoidCallback _) {
-                                    // Futureを使ってビルドフェーズが完了した後に状態変更
+                                    // Futureを使ってビルドが完了した後に状態変更
                                     Future(() {
                                       ref
                                           .read(searchAsyncNotifierProvider
