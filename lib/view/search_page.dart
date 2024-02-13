@@ -82,7 +82,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                             //検索処理
                             ref
                                 .read(searchAsyncNotifierProvider.notifier)
-                                .searchRepositories(_controller.text);
+                                .searchRepos(_controller.text);
 
                             //検索を開始
                             ref
@@ -144,8 +144,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                         ref
                                             .read(searchAsyncNotifierProvider
                                                 .notifier)
-                                            .searchRepositories(
-                                                _controller.text);
+                                            .searchRepos(_controller.text);
                                       },
                                       child: Text("やり直す"))
                                 ],
