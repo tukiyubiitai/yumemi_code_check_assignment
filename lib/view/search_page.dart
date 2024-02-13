@@ -145,7 +145,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                   ),
                                   OutlinedButton(
                                       onPressed: () {
-                                        //再読み込み処理
+                                        // 再読み込み処理
                                         ref
                                             .read(searchAsyncNotifierProvider
                                                 .notifier)
