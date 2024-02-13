@@ -35,9 +35,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(searchAsyncNotifierProvider);
+    final state = ref.watch(searchAsyncNotifierProvider); // 検索結果の状態
     final isLightTheme = ref.watch(themeProvider); // テーマ
-    final isSearched = ref.watch(searchStateNotifierProvider); // 検索の状態
+    final isSearched = ref.watch(searchStateNotifierProvider); // 検索が実行されたかどうか
 
     return Scaffold(
       appBar: AppBar(
