@@ -21,7 +21,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // テキストフィールドの値が変更されたときにウィジェットを再ビルドする。
+    // テキストフィールドの値が変更されたときにウィジェットを再ビルド
     _controller.addListener(() {
       setState(() {});
     });
