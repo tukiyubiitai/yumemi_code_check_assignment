@@ -21,6 +21,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   @override
   void initState() {
     super.initState();
+    // テキストフィールドの値が変更されたときにウィジェットを再ビルドする。
     _controller.addListener(() {
       setState(() {});
     });
@@ -36,11 +37,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(searchAsyncNotifierProvider);
     final isLightTheme = ref.watch(themeProvider); // テーマ
-    final isSearched = ref.watch(searchNotifierProvider); // 検索の状態
+    final isSearched = ref.watch(searchStateNotifierProvider); // 検索の状態
 
     return Scaffold(
       appBar: AppBar(
         actions: [
+          // テーマ切り替えスイッチ
           Switch(
             value: isLightTheme,
             onChanged: (value) =>
@@ -54,6 +56,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             Column(
               children: [
                 Padding(
+                  // 検索バーのUI設定。
                   padding: const EdgeInsets.symmetric(
                     vertical: 8.0,
                     horizontal: 15.0,
@@ -71,6 +74,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         labelStyle: const TextStyle(color: Colors.deepPurple)),
                   ),
                 ),
+                // 検索ボタン。
                 Container(
                   height: 50.0,
                   margin: EdgeInsets.all(10),
@@ -86,7 +90,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
                             //検索を開始
                             ref
-                                .read(searchNotifierProvider.notifier)
+                                .read(searchStateNotifierProvider.notifier)
                                 .startSearching();
                           }
                         : null, // textに入力されていない場合は検索できない
@@ -125,6 +129,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     ),
                   ),
                 ),
+                // 検索結果の表示領域
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -153,7 +158,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         loading: () =>
                             Center(child: CircularProgressIndicator()),
                         data: (data) {
-                          // 検索が実行されていない場合は何も表示しない
+                          // 検索が実行されていない場合
                           if (!isSearched) {
                             return SizedBox.shrink(); // 何も表示しない
                           }
@@ -169,11 +174,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                               ),
                             ));
                           }
-                          // 検索結果をリストで表示
+                          // 検索結果をリスト表示
                           return ListView.builder(
                             primary: false,
                             shrinkWrap: true,
-                            // physics: NeverScrollableScrollPhysics(),
                             itemCount: data.repositoryList.length,
                             itemBuilder: (context, index) {
                               final repository = data.repositoryList[index];
