@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:yumemi_code_check_assignment/models/repository_state.dart';
 
 import '../models/repository_detail.dart';
-import '../repository/search_reapository.dart';
+import '../repository/search_repository.dart';
 
 // 自動生成されたファイルのインポート
 part 'search_notifier.g.dart';
@@ -44,8 +44,10 @@ class SearchAsyncNotifier extends _$SearchAsyncNotifier {
     } catch (e, stack) {
       // エラー処理
       logger.e(
-          'Error: ${e.toString()}\nStack trace: ${stack.toString().substring(0, 200)}'); // 先頭200文字だけ出力
+          'Error: ${e.toString()}\nStack trace: ${stack.toString()}'); // 先頭200文字だけ出力
       state = AsyncValue.error(e, stack); // エラー状態を view に伝える
+
+      print(state.runtimeType);
     }
   }
 
@@ -67,29 +69,21 @@ class SearchAsyncNotifier extends _$SearchAsyncNotifier {
     // 状態を更新
     state = AsyncValue.data(updatedState);
   }
-}
 
-/// 選択されたRepository情報をsearchAsyncNotifierProviderから取得し、RepositoryDetailに値を入れる
-@riverpod
-RepositoryDetail? selectedRepository(SelectedRepositoryRef ref) {
-  try {
-    // searchAsyncNotifierProviderから現在の状態を取得
-    final asyncValue = ref.watch(searchAsyncNotifierProvider).value;
+  /// 選択されたRepository情報をsearchAsyncNotifierProviderから取得し、RepositoryDetailに値を入れる
+  RepositoryDetail? selectedRepository() {
+    final asyncValue = state.value;
 
-    // asyncValue が null の場合は、何も選択されていないことを意味
     if (asyncValue == null) {
       return null;
     }
 
-    // 選択されたリポジトリの情報を取得
     final selectedRepository = asyncValue.selectedRepository;
 
-    // selectedRepository が null の場合は、リポジトリが選択されていないか、取得に失敗
     if (selectedRepository == null) {
       return null;
     }
 
-    // 選択されたリポジトリの詳細情報を持つ新しい RepositoryDetail オブジェクトを作成して返す
     return RepositoryDetail(
         id: selectedRepository.id,
         // リポジトリのID
@@ -105,10 +99,6 @@ RepositoryDetail? selectedRepository(SelectedRepositoryRef ref) {
         // フォークの数
         open_issues_count: selectedRepository.open_issues_count,
         // オープンされているイシューの数
-        owner: selectedRepository.owner); // リポジトリのオーナー情報
-  } catch (e) {
-    // エラー処理
-    logger.e('Error: リポジトリ情報の取得に失敗しました'); // エラーログの出力
-    throw 'リポジトリ情報の取得に失敗しました';
+        owner: selectedRepository.owner);
   }
 }
