@@ -30,7 +30,7 @@ main() {
                   "forks_count": 54321,
                   "watchers_count": 4321,
                   "open_issues_count": 4321,
-                  "owner": {"avatar_url": "flutter"},
+                  "owner": {"avatar_url": "imageUrl"},
                   "stargazers_count": 100000,
                   "language": "Dart",
                 },
