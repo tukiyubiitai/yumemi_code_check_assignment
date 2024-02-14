@@ -23,7 +23,7 @@ class SearchRepository {
   ///
   /// Dioクライアントを生成し、`Authorization` ヘッダーに環境変数から取得した
   /// アクセストークンを設定します。
-  SearchRepository()
+  SearchRepository({Dio? client})
       : _client = Dio(
           BaseOptions(
             baseUrl: "https://api.github.com/",
