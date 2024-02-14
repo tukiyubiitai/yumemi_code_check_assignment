@@ -12,7 +12,7 @@ final searchRepositoryProvider = Provider<SearchRepository>((ref) {
   return SearchRepository();
 });
 
-/// GitHub APIとの通信を抽象化するクラスです。
+/// GitHub APIとの通信を抽象化するクラスです
 ///
 /// このクラスは、リポジトリの検索機能を提供します。
 class SearchRepository {
