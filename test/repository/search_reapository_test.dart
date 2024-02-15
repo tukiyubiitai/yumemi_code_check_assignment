@@ -7,7 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:yumemi_code_check_assignment/models/repository_detail.dart';
 import 'package:yumemi_code_check_assignment/repository/search_repository.dart';
 
-import '../main_test.mocks.dart';
+import 'search_reapository_test.mocks.dart';
 
 @GenerateNiceMocks([MockSpec<Dio>()])
 main() {
